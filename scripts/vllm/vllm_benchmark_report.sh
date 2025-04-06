@@ -47,8 +47,10 @@ done
 
 # args
 model_org_name=(${model//// })
-model_name=${model_org_name[1]}
+model_name=${model_org_name[-1]}
 tp=$numgpu
+
+#TODO: 
 
 # perf configuration
 export VLLM_USE_TRITON_FLASH_ATTN=0
@@ -64,7 +66,7 @@ fi
 if [[ $datatype == "float16" ]]; then
     DTYPE=" --dtype float16 "	
 elif [[ $datatype == "float8" ]]; then
-    if [[ $model_name == "DeepSeek-R1" ]] || [[ $model_name == "DeepSeek-V3" ]] ; then 
+    if [[ $model_name == "DeepSeek-R1" ]] || [[ $model_name == "DeepSeek-V3" ]] || [[ $model_name == "DeepSeek-V2" ]] || [[ $model_name == "DeepSeek-V2-Lite" ]]; then 
         DTYPE=" --dtype float16 --quantization fp8 --max-model-len 32768 " 
     else
         DTYPE=" --dtype float16 --quantization fp8 --kv-cache-dtype fp8 " 

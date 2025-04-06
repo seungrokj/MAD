@@ -514,6 +514,29 @@
     "args":
     "--model_repo deepseek-ai/DeepSeek-R1 --test_option latency,throughput --num_gpu 8 --datatype float8 --tunableop off"
   },
+
+
+
+  {
+    "name": "pyt_vllm_test",
+    "url": "",
+    "dockerfile": "docker/pyt_vllm",
+    "scripts": "scripts/vllm/run.sh",
+    "data": "huggingface",
+    "n_gpus": "-1",
+    "owner": "mad.support@amd.com",
+    "training_precision": "",
+    "multiple_results": "perf_DeepSeek-V3.csv",
+    "tags": [
+      "pyt",
+      "vllm"
+    ],
+    "timeout": -1,
+    "args":
+    "--model_repo /home/amd/models/DeepSeek-V3 --test_option latency,throughput --num_gpu 8 --datatype float8 --tunableop off"
+  },
+
+
   {
     "name": "pyt_train_llama-3.1-8b",
     "url": "",

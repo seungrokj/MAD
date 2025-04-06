@@ -328,6 +328,12 @@ def run_model(
     # docker_opts += get_cpu_docker_args()        
 
     mount_data_paths = []
+
+    for key in os.environ:
+        if "MODEL_DIR" in key:
+            mount_format = { "host_path": os.environ[key], "container_path": os.environ[key], "read_write": True }
+            mount_data_paths.append(mount_format)
+
     docker_opts += get_mount_docker_args(mount_data_paths)
 
     logger.debug(f"Running Docker container with options: {docker_opts}")
