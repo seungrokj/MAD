@@ -479,6 +479,42 @@
     "--model_repo amd/c4ai-command-r-plus-FP8-KV --test_option latency,throughput --num_gpu 8 --datatype float8 --tunableop off"
   },
   {
+    "name": "pyt_vllm_command-r-plus_fp8",
+    "url": "",
+    "dockerfile": "docker/pyt_vllm",
+    "scripts": "scripts/vllm/run.sh",
+    "data": "huggingface",
+    "n_gpus": "-1",
+    "owner": "mad.support@amd.com",
+    "training_precision": "",
+    "multiple_results": "perf_c4ai-command-r-plus-FP8-KV.csv",
+    "tags": [
+      "pyt",
+      "vllm"
+    ],
+    "timeout": -1,
+    "args":
+    "--model_repo amd/c4ai-command-r-plus-FP8-KV --test_option latency,throughput --num_gpu 8 --datatype float8 --tunableop off"
+  },
+  {
+    "name": "pyt_vllm_deepseek-r1_fp8",
+    "url": "",
+    "dockerfile": "docker/pyt_vllm",
+    "scripts": "scripts/vllm/run.sh",
+    "data": "huggingface",
+    "n_gpus": "-1",
+    "owner": "mad.support@amd.com",
+    "training_precision": "",
+    "multiple_results": "perf_DeepSeek-R1.csv",
+    "tags": [
+      "pyt",
+      "vllm"
+    ],
+    "timeout": -1,
+    "args":
+    "--model_repo deepseek-ai/DeepSeek-R1 --test_option latency,throughput --num_gpu 8 --datatype float8 --tunableop off"
+  },
+  {
     "name": "pyt_train_llama-3.1-8b",
     "url": "",
     "dockerfile": "docker/pytorch_train",

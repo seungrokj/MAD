@@ -64,7 +64,11 @@ fi
 if [[ $datatype == "float16" ]]; then
     DTYPE=" --dtype float16 "	
 elif [[ $datatype == "float8" ]]; then
-    DTYPE=" --dtype float16 --quantization fp8 --kv-cache-dtype fp8 " 
+    if [[ $model_name == "DeepSeek-R1" ]] || [[ $model_name == "DeepSeek-V3" ]] ; then 
+        DTYPE=" --dtype float16 --quantization fp8 --max-model-len 32768 " 
+    else
+        DTYPE=" --dtype float16 --quantization fp8 --kv-cache-dtype fp8 " 
+    fi
 fi
 
 OPTION_LATENCY=" --gpu-memory-utilization 0.9 "

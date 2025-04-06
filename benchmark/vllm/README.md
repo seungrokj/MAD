@@ -14,7 +14,7 @@ This Docker image packages vLLM with PyTorch for an AMD Instinct™ MI300X
 accelerator. It includes:
 
 -   ✅ ROCm™ 6.3.1
--   ✅ vLLM 0.7.3
+-   ✅ vLLM 0.7.4
 -   ✅ PyTorch 2.7.0 (dev nightly)
 -   ✅ hipBLASLt 0.13
 
@@ -184,6 +184,7 @@ cd MAD/scripts/vllm
 |              | amd/Mistral-7B-v0.1-FP8-KV              | [Mistral 7B](https://huggingface.co/amd/Mistral-7B-v0.1-FP8-KV)                                   |
 |              | amd/dbrx-instruct-FP8-KV                | [DBRX Instruct](https://huggingface.co/amd/dbrx-instruct-FP8-KV)                                     |
 |              | amd/c4ai-command-r-plus-FP8-KV          | [C4AI Command R+ 08-2024](https://huggingface.co/amd/c4ai-command-r-plus-FP8-KV)                               |
+|              | deepseek-ai/DeepSeek-R1          | [DeepSeek-R1](https://huggingface.co/deepseek-ai/DeepSeek-R1)                               |
 | $num_gpu     | 1 or 8                                  | Number of GPUs                                   |
 | $datatype    | float16, float8                         | Data type                                        |
 
@@ -303,13 +304,10 @@ owners and are only mentioned for informative purposes.   
 ## Changelog
 ----------
 This release note summarizes notable changes since the previous docker release.
-
--   The vLLM version number was incremented from 0.6.6 to 0.7.3.
-
--   Improved fp8 throughput performance with HipblasLT 0.13
+-   The vLLM version number was incremented from 0.7.3 to 0.7.4.
 
 -   The float8 data type benchmark test was added to include the following models: 
-Llama 3.1 8B Instruct
+DeepSeek-R1
 
 ## Support 
 ----------
