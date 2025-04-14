@@ -187,5 +187,34 @@ if [ "$scenario" == "online_perf" ]; then
 	    done
 	done
     done < <(tail -n +2 online_config.csv)
+
+elif [ "$scenario" == "online_accuracy" ]; then
+
+    echo "[INFO] ONLINE ACCURACY"
+    echo "[INFO]" $MODEL_DIR
+
+    date=$(date +"%Y-%m-%d")
+    LOG="temp"
+    backend="vllm"
+    LOG_sum="benchmark_${backend}_${vllmmode}_accuracy_${date}"
+
+    while IFS="," read -r vllm_arg
+    do
+	echo $vllm_arg
+	printf "%-15s" "model: " $MODEL_DIR     2>&1 | tee -a ${LOG_sum}.log
+	printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" "option: " $vllm_arg     2>&1 | tee -a ${LOG_sum}.log
+	printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" "==========="  2>&1 | tee -a ${LOG_sum}.log
+	printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
+
+	vllm serve $MODEL_DIR $vllm_arg $DTYPE &
+	wait_for_server 8000
+
+	#TODO:
+
+	printf "%-15s" prompts                 2>&1 | tee -a ${LOG_sum}.log
+    done < <(tail -n +2 online_config.csv)
 fi
+
 cp $LOG_sum.log $report_summary_dir/.

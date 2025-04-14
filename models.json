@@ -16,5 +16,23 @@
     "timeout": -1,
     "args":
     "--model_repo dummy --test_option online_perf --vllm_mode v1 --datatype bfloat16"
+  },
+  {
+    "name": "pyt_vllm_local_model_acc",
+    "url": "",
+    "dockerfile": "docker/pyt_vllm",
+    "scripts": "scripts/vllm/run.sh",
+    "data": "huggingface",
+    "n_gpus": "-1",
+    "owner": "mad.support@amd.com",
+    "training_precision": "",
+    "multiple_results": "perf_local_model.csv",
+    "tags": [
+      "pyt",
+      "vllm"
+    ],
+    "timeout": -1,
+    "args":
+    "--model_repo dummy --test_option online_accuracy --vllm_mode v1 --datatype bfloat16"
   }
 ]
