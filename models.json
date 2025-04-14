@@ -15,6 +15,6 @@
     ],
     "timeout": -1,
     "args":
-    "--model_repo dummy --test_option online_perf --vllm_mode v1 --datatype float8"
+    "--model_repo dummy --test_option online_perf --vllm_mode v1 --datatype bfloat16"
   }
 ]
