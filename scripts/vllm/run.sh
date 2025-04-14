@@ -33,6 +33,13 @@ else
     exit 1
 fi
 
+if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" != *"gfx94"* ]] ; then 
+    echo "Suported GPU arch detected \n"
+    git clone https://github.com/vllm-project/vllm.git /app/vllm
+fi
+
+
+
 export HF_TOKEN=$MAD_SECRETS_HFTOKEN
 
 # Parse named arguments
