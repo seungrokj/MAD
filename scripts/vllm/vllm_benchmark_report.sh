@@ -188,4 +188,4 @@ if [ "$scenario" == "online_perf" ]; then
 	done
     done < <(tail -n +2 online_config.csv)
 fi
-cp $LOG_sum $report_summary_dir/.
+cp $LOG_sum.log $report_summary_dir/.
