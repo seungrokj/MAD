@@ -324,6 +324,14 @@ def run_model(
         update_dict(run_envs, mad_secrets)
     docker_opts += get_env_docker_args(run_envs)
 
+    model_dir = {}
+    for key in os.environ:
+        if "MODEL_DIR" in key:
+            model_dir[key] = os.environ[key]
+    if model_dir:
+        update_dict(run_envs, model_dir)
+    docker_opts += get_env_docker_args(run_envs)
+
     docker_opts += get_gpu_docker_args()
     # docker_opts += get_cpu_docker_args()        
 

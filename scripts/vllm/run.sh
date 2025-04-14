@@ -46,7 +46,7 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
     case $1 in
-        --num_gpu) N_GPUS="$2"; shift ;;
+        --vllm_mode) VLLM_MODE="$2"; shift ;;
         *) echo "Unknown parameter passed: $1"; usage ;;
     esac
     shift
@@ -55,17 +55,19 @@ while [[ "$#" -gt 0 ]]; do
         *) echo "Unknown parameter passed: $1"; usage ;;
     esac
     shift
-    case $1 in
-        --tunableop) TUNABLEOP="$2"; shift ;;
-        *) echo "Unknown parameter passed: $1"; usage ;;
-    esac
-    shift
 done
+
 
 TEST_OPTION_SP=""
 for i in $(echo $TEST_OPTION | tr "," "\n")
 do
   TEST_OPTION_SP="$TEST_OPTION_SP $i"
+done
+
+VLLM_MODE_SP=""
+for i in $(echo $VLLM_MODE | tr "," "\n")
+do
+  VLLM_MODE_SP="$VLLM_MODE_SP $i"
 done
 
 DTYPE_SP=""
@@ -74,25 +76,18 @@ do
   DTYPE_SP="$DTYPE_SP $i"
 done
 
-if [[ "$TUNABLEOP" == "on" ]]; then 
-    echo "turning on pytorch turnableop"
-    export PYTORCH_TUNABLEOP_ENABLED=1
-else
-    echo "turning off pytorch turnableop"
-    export PYTORCH_TUNABLEOP_ENABLED=0
-fi
-
 export HF_HUB_CACHE="/myworkspace"
 
 echo "=hyper params start="
 echo $MODEL_NAME
 echo $TEST_OPTION_SP
+echo $VLLM_MODE_SP
+echo $MAD_SYSTEM_NGPUS
 echo $DTYPE_SP
-echo $PYTORCH_TUNABLEOP_ENABLED
 echo "=hyper params end="
 
 for scenario in $TEST_OPTION_SP; do
     for dtype in $DTYPE_SP; do
-        ./vllm_benchmark_report.sh -s $scenario -m $MODEL_NAME -g $N_GPUS -d $dtype
+        ./vllm_benchmark_report.sh -s $scenario -m $MODEL_NAME -g $MAD_SYSTEM_NGPUS -d $dtype -v $VLLM_MODE_SP
     done
 done

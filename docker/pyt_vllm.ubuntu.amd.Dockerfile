@@ -24,7 +24,7 @@
 # SOFTWARE.
 #
 #################################################################################
-ARG BASE_DOCKER=rocm/vllm:instinct_main
+ARG BASE_DOCKER=rocm/vllm-dev:llama4-20250409
 FROM $BASE_DOCKER
 
 USER root

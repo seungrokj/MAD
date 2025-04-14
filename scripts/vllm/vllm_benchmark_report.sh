@@ -26,22 +26,23 @@
 #################################################################################
 
 ## Usage: 
-#./vllm_benchmark_report.sh -s $mode -m $hf_model -g $n_gpu -d $datatype
+#./vllm_benchmark_report.sh -s $mode -m $hf_model -g $n_gpu -d $datatype -v $vllm_mode
 ## example:
 ## latency + throughput
-#./vllm_benchmark_report.sh -s all -m NousResearch/Meta-Llama-3-8B -g 1 -d float16
+#./vllm_benchmark_report.sh -s all -m NousResearch/Meta-Llama-3-8B -g 1 -d float16 -v $vllm_mode
 ## latency 
-#./vllm_benchmark_report.sh -s latency -m NousResearch/Meta-Llama-3-8B -g 1 -d float16
+#./vllm_benchmark_report.sh -s latency -m NousResearch/Meta-Llama-3-8B -g 1 -d float16 -v $vllm_mode
 ## throughput
-#./vllm_benchmark_report.sh -s throughput -m NousResearch/Meta-Llama-3-8B -g 1 -d float16
+#./vllm_benchmark_report.sh -s throughput -m NousResearch/Meta-Llama-3-8B -g 1 -d float16 -v $vllm_mode
 
-while getopts s:m:g:d: flag
+while getopts s:m:g:d:v: flag
 do
     case "${flag}" in
         s) scenario=${OPTARG};;
         m) model=${OPTARG};;
         g) numgpu=${OPTARG};;
         d) datatype=${OPTARG};;
+        v) vllmmode=${OPTARG};;
     esac
 done
 
@@ -50,123 +51,137 @@ model_org_name=(${model//// })
 model_name=${model_org_name[-1]}
 tp=$numgpu
 
-#TODO: 
+tag="vllm_rocm6.3.1"
+CON="16 32 64 128"
+ISL_OSL=("1000:1000" "5000:1000" "10000:1000" "3200:800" "2000:150")
+CON="128"
+ISL_OSL=("1000:1000")
 
-# perf configuration
-export VLLM_USE_TRITON_FLASH_ATTN=0
-export NCCL_MIN_NCHANNELS=112
-export VLLM_FP8_PADDING=1
+report_dir="reports_${datatype}_${tag}"
+report_summary_dir="${report_dir}/summary"
+mkdir -p $report_dir
+mkdir -p $report_summary_dir
 
-if [ $tp -eq 1 ]; then
-    DIST_BE=" "
+echo $vllmmode
+
+if [[ $vllmmode == "v1" ]]; then
+    export VLLM_USE_V1=1 
+    export SAFETENSORS_FAST_GPU=1 
+    export VLLM_WORKER_MULTIPROC_METHOD=spawn
 else
-    DIST_BE=" --distributed-executor-backend mp "
+    export VLLM_USE_V1=0
 fi
 
 if [[ $datatype == "float16" ]]; then
     DTYPE=" --dtype float16 "	
 elif [[ $datatype == "float8" ]]; then
-    if [[ $model_name == "DeepSeek-R1" ]] || [[ $model_name == "DeepSeek-V3" ]] || [[ $model_name == "DeepSeek-V2" ]] || [[ $model_name == "DeepSeek-V2-Lite" ]]; then 
-        DTYPE=" --dtype float16 --quantization fp8 --max-model-len 32768 " 
-    else
-        DTYPE=" --dtype float16 --quantization fp8 --kv-cache-dtype fp8 " 
-    fi
+    DTYPE=" --dtype float16 --quantization fp8 --kv-cache-dtype fp8 " 
 fi
 
-OPTION_LATENCY=" --gpu-memory-utilization 0.9 "
+wait_for_server() {
+  # wait for vllm server to start
+  # return 1 if vllm server crashes
+  local port=$1
+  timeout 12000 bash -c "
+    until curl -s localhost:${port}/v1/completions > /dev/null; do
+      sleep 1
+    done" && return 0 || return 1
+}
 
-# latency conditions
-Bat="1 2 4 8 16 32 64 128 256"
-InLatency="128 2048"
-OutLatency="1 128"
+if [ "$scenario" == "online_perf" ]; then
 
-# throughput conditions
-In_Out=("128:128" "2048:128" "128:2048" "2048:2048")
+    echo "[INFO] ONLINE PERFORMANCE"
+    echo "[INFO]" $MODEL_DIR
 
-tag="vllm_rocm6.3.1"
+    date=$(date +"%Y-%m-%d")
+    LOG="temp"
+    backend="vllm"
+    LOG_sum="benchmark_${backend}_${vllmmode}_${date}"
 
-report_dir="reports_${datatype}_${tag}"
-report_summary_dir="${report_dir}/summary"
-tool_latency="/app/vllm/benchmarks/benchmark_latency.py"
-tool_throughput="/app/vllm/benchmarks/benchmark_throughput.py"
-tool_report="vllm_benchmark_report.py"
-n_warm=3
-n_itr=5
-mkdir -p $report_dir
-mkdir -p $report_summary_dir
-
-
-if [ "$scenario" == "latency" ] || [ "$scenario" == "all" ]; then
-    echo "[INFO] LATENCY"
-    mode="latency"
-    for out in $OutLatency;
+    while IFS="," read -r vllm_arg
     do
-        for inp in $InLatency;
-        do
-            for bat in $Bat;
-            do
-                if [ "$out" == "1" ]; then
-                    NO_CUDA_GRAPH=" --enforce-eager "
-                else
-                    NO_CUDA_GRAPH=" "
-                fi
-                outjson=${report_dir}/${model_name}_${mode}_decoding_bs${bat}_in${inp}_out${out}_${datatype}.json
-                outcsv=${report_summary_dir}/${model_name}_${mode}_report.csv
-                echo $model $mode $bat $tp $inp $out
-                python3 $tool_latency --model $model --batch-size $bat -tp $tp --input-len $inp --output-len $out --num-iters-warmup $n_warm --num-iters $n_itr --trust-remote-code --output-json $outjson $DTYPE $DIST_BE $OPTION_LATENCY $NO_CUDA_GRAPH
-                python3 $tool_report --mode $mode --model $model_name --batch-size $bat --tp $tp --input-len $inp --output-len $out --input-json $outjson --output-csv $outcsv --dtype $datatype
-            done
-        done
-    done
+	echo $vllm_arg
+	printf "%-15s" "model: " $MODEL_DIR     2>&1 | tee -a ${LOG_sum}.log
+	printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" "option: " $vllm_arg     2>&1 | tee -a ${LOG_sum}.log
+	printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" "==========="  2>&1 | tee -a ${LOG_sum}.log
+	printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
+
+	vllm serve $MODEL_DIR $vllm_arg $DTYPE &
+	wait_for_server 8000
+
+	printf "%-15s" prompts                 2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" isl                     2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" osl                     2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" con                     2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" req_throughput          2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" median_e2e              2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" median_ttft             2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" median_tpot             2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" median_itl              2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" output_tps              2>&1 | tee -a ${LOG_sum}.log
+	printf "%-15s" total_tps               2>&1 | tee -a ${LOG_sum}.log
+	printf "\n"                            2>&1 | tee -a ${LOG_sum}.log
+
+	for in_out in ${ISL_OSL[@]}
+	do
+	    isl=$(echo $in_out | awk -F':' '{ print $1 }')
+	    osl=$(echo $in_out | awk -F':' '{ print $2 }')
+	    for con in $CON; do
+		prompts=640
+
+		echo "[RUNNING] prompts $prompts isl $isl osl $osl con $con"
+		python3 /app/vllm/benchmarks/benchmark_serving.py \
+		    --model $MODEL_DIR \
+		    --dataset-name random \
+		    --random-input-len $isl \
+		    --random-output-len $osl \
+		    --num-prompts $prompts \
+		    --max-concurrency $con \
+		    --port 8000 \
+		    --ignore-eos \
+		    --percentile-metrics ttft,tpot,itl,e2el \
+		    2>&1 | tee ${LOG}.log
+
+		rTh=$(grep -E "Request throughput" ${LOG}.log)
+		e2eLat=$(grep -E "Median E2EL" ${LOG}.log)
+		ttftLat=$(grep -E "Median TTFT" ${LOG}.log)
+		tpotLat=$(grep -E "Median TPOT" ${LOG}.log)
+		itlLat=$(grep -E "Median ITL" ${LOG}.log)
+		outTh=$(grep -E "Output token throughput" ${LOG}.log)
+		totTh=$(grep -E "Total Token throughput" ${LOG}.log)
+
+		rTh_sp=(${rTh//:/ })
+		e2eLat_sp=(${e2eLat//:/ })
+		ttftLat_sp=(${ttftLat//:/ })
+		tpotLat_sp=(${tpotLat//:/ })
+		itlLat_sp=(${itlLat//:/ })
+		outTh_sp=(${outTh//:/ })
+		totTh_sp=(${totTh//:/ })
+
+		rTh_val=${rTh_sp[3]}
+		e2eLat_val=${e2eLat_sp[3]}
+		ttftLat_val=${ttftLat_sp[3]}
+		tpotLat_val=${tpotLat_sp[3]}
+		itlLat_val=${itlLat_sp[3]}
+		outTh_val=${outTh_sp[4]}
+		totTh_val=${totTh_sp[4]}
+
+		printf "%-15s" $prompts        2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $isl            2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $osl            2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $con            2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $rTh_val        2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $e2eLat_val     2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $ttftLat_val    2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $tpotLat_val    2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $itlLat_val     2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $outTh_val      2>&1 | tee -a ${LOG_sum}.log
+		printf "%-15s" $totTh_val      2>&1 | tee -a ${LOG_sum}.log
+		printf "\n"                    2>&1 | tee -a ${LOG_sum}.log
+	    done
+	done
+    done < <(tail -n +2 online_config.csv)
 fi
-
-if [ "$scenario" == "throughput" ] || [ "$scenario" == "all" ]; then
-    echo "[INFO] THROUGHPUT"
-    mode="throughput"
-    for in_out in ${In_Out[@]}
-    do
-        inp=$(echo $in_out | awk -F':' '{ print $1 }')
-        out=$(echo $in_out | awk -F':' '{ print $2 }')
-
-        # throughput config
-        while IFS="," read -r model_cfg input_len output_len num_prompts max_num_seqs max_seq_len_to_capture max_num_batched_tokens	max_model_len gpu_memory_utilization num_scheduler_steps enable_chunked_prefill
-        do
-	    model_cfg_org_name=(${model_cfg//// })
-	    model_cfg_name=${model_cfg_org_name[1]}
-            if [ "$model_name" == "$model_cfg_name" ]; then
-                if [ "$input_len" == "$inp" ] && [ "$output_len" == "$out" ];then
-		    outjson=${report_dir}/${model_name}_${mode}_req${num_prompts}_in${inp}_out${out}_${datatype}.json
-		    outcsv=${report_summary_dir}/${model_name}_${mode}_report.csv
-		    if [ "$max_seq_len_to_capture" == "NA" ]; then
-			OPTION_THROUGHPUT=" --num-prompts $num_prompts \
-			    --max-num-seqs            $max_num_seqs            \
-			    --gpu-memory-utilization  $gpu_memory_utilization  \
-			    --num-scheduler-steps     $num_scheduler_steps     \
-			    --enable-chunked-prefill $enable_chunked_prefill "
-			else
-			OPTION_THROUGHPUT=" --num-prompts $num_prompts \
-			    --max-num-seqs            $max_num_seqs            \
-			    --max-seq-len-to-capture  $max_seq_len_to_capture  \
-			    --max-num-batched-tokens  $max_num_batched_tokens  \
-			    --max-model-len           $max_model_len           \
-			    --gpu-memory-utilization  $gpu_memory_utilization  \
-			    --num-scheduler-steps     $num_scheduler_steps     \
-			    --enable-chunked-prefill $enable_chunked_prefill "
-		    fi
-		    echo "[RUNNING] MODEL :" $model $mode $num_prompts $tp $inp $out
-		    echo "[RUNNING] MODEL with OPTION: " $OPTION_THROUGHPUT
-		    python3 $tool_throughput --model $model -tp $tp --input-len $inp --output-len $out --trust-remote-code --output-json $outjson $DTYPE $DIST_BE $OPTION_THROUGHPUT
-		    python3 $tool_report --mode $mode --model $model_name --num-prompts $num_prompts --tp $tp --input-len $inp --output-len $out --input-json $outjson --output-csv $outcsv --dtype $datatype
-		fi
-            fi
-        done < <(tail -n +2 config.csv)
-    done
-fi
-
-echo "Generate report of multiple results"
-tool_parser="parse_csv.py"
-latency_summary_csv=${report_summary_dir}/${model_name}_latency_report.csv
-throughput_summary_csv=${report_summary_dir}/${model_name}_throughput_report.csv
-python3 $tool_parser --file_latency $latency_summary_csv --file_throughput $throughput_summary_csv
-
-mv perf_${model_name}.csv ../
+cp $LOG_sum $report_summary_dir/.
