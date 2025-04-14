@@ -75,7 +75,11 @@ fi
 if [[ $datatype == "float16" ]]; then
     DTYPE=" --dtype float16 "	
 elif [[ $datatype == "float8" ]]; then
-    DTYPE=" --dtype float16 --quantization fp8 --kv-cache-dtype fp8 " 
+    if [[ $vllmmode == "v1" ]]; then
+	DTYPE=" --dtype float16 --quantization fp8 " 
+    else
+	DTYPE=" --dtype float16 --quantization fp8 --kv-cache-dtype fp8 " 
+    fi
 fi
 
 wait_for_server() {
