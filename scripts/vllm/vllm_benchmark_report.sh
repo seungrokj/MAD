@@ -55,7 +55,7 @@ tag="vllm_rocm6.3.1"
 CON="16 32 64 128"
 ISL_OSL=("1000:1000" "5000:1000" "10000:1000" "3200:800" "2000:150")
 CON="128"
-ISL_OSL=("1000:1000")
+ISL_OSL=("2000:150")
 
 report_dir="reports_${datatype}_${tag}"
 report_summary_dir="${report_dir}/summary"
