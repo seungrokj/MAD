@@ -1,0 +1,2 @@
+vllm_arg
+--tensor-parallel-size 8 --gpu-memory-utilization 0.95 --trust-remote-code  --disable-log-requests  --max-model-len 32768 --no-enable-prefix-caching 
