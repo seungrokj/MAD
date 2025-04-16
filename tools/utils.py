@@ -302,7 +302,7 @@ class Docker:
         command += image + " "
 
         # Hack to keep the container alive.
-        command += "cat "
+        #command += "cat "
 
         # Run the docker run command.
         self.console.sh(command)

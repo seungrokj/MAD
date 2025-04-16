@@ -298,7 +298,7 @@ def run_model(
     run_details.build_duration = build_duration
 
     # Run the Docker container
-    docker_opts = ""
+    docker_pts = ""
     # Check 'AMD' or 'NVIDIA' string in the dockerfile_gpu_suffix or not
     if re.search("amd", dockerfile_gpu_suffix):
         docker_opts = "--network host -u root --group-add video --cap-add=SYS_PTRACE --cap-add SYS_ADMIN --device /dev/fuse --security-opt seccomp=unconfined --security-opt apparmor=unconfined --ipc=host "
@@ -343,6 +343,7 @@ def run_model(
             mount_data_paths.append(mount_format)
 
     docker_opts += get_mount_docker_args(mount_data_paths)
+    docker_opts +=  " --entrypoint /bin/bash "
 
     logger.debug(f"Running Docker container with options: {docker_opts}")
 
