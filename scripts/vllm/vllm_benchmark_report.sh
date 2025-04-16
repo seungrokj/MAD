@@ -47,6 +47,7 @@ do
 done
 
 pip install pandas datasets 
+pip install lm-eval[api]
 
 # args
 model_org_name=(${model//// })
