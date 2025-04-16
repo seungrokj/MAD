@@ -38,8 +38,6 @@ if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" != *"gfx94"* ]] ; then
     git clone https://github.com/vllm-project/vllm.git /app/vllm
 fi
 
-
-
 export HF_TOKEN=$MAD_SECRETS_HFTOKEN
 
 # Parse named arguments
