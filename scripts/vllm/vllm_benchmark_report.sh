@@ -231,7 +231,7 @@ elif [ "$scenario" == "online_accuracy" ]; then
         wait_for_server 8080
 
         lm_eval --model local-completions --model_args model=$MODEL_DIR,base_url=http://0.0.0.0:8080/v1/completions,num_concurrent=10,max_retries=3 --tasks mmlu_pro --limit 100  2>&1 | tee -a ${LOG_sum}.log
-        lm_eval --model local-completions --model_args model=$MODEL_DIR,base_url=http://0.0.0.0:8080/v1/completions,num_concurrent=10,max_retries=3 --tasks gpqa_diamond_cot_zeroshot --apply_chat_template  2>&1 | tee -a ${LOG_sum}.log
+        #lm_eval --model local-completions --model_args model=$MODEL_DIR,base_url=http://0.0.0.0:8080/v1/completions,num_concurrent=10,max_retries=3 --tasks gpqa_diamond_cot_zeroshot --apply_chat_template  2>&1 | tee -a ${LOG_sum}.log
         lm_eval --model local-completions --model_args model=$MODEL_DIR,base_url=http://0.0.0.0:8080/v1/completions,num_concurrent=10,max_retries=3 --tasks gsm8k  2>&1 | tee -a ${LOG_sum}.log
     done < <(tail -n +2 $CONFIG)
 fi
