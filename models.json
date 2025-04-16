@@ -1,24 +1,6 @@
 [
   {
-    "name": "pyt_vllm_ll4",
-    "url": "",
-    "dockerfile": "docker/pyt_vllm",
-    "scripts": "scripts/vllm/run.sh",
-    "data": "huggingface",
-    "n_gpus": "-1",
-    "owner": "mad.support@amd.com",
-    "training_precision": "",
-    "multiple_results": "perf_local_model.csv",
-    "tags": [
-      "pyt",
-      "vllm"
-    ],
-    "timeout": -1,
-    "args":
-    "--model_repo dummy --test_option online_perf,online_accuracy --vllm_mode v1 --datatype dummy"
-  },
-  {
-    "name": "pyt_vllm_ll4_performance",
+    "name": "pyt_vllm_ll4_pf",
     "url": "",
     "dockerfile": "docker/pyt_vllm",
     "scripts": "scripts/vllm/run.sh",
@@ -36,7 +18,7 @@
     "--model_repo dummy --test_option online_perf --vllm_mode v1 --datatype dummy"
   },
   {
-    "name": "pyt_vllm_ll4_accuracy",
+    "name": "pyt_vllm_ll4_ac",
     "url": "",
     "dockerfile": "docker/pyt_vllm",
     "scripts": "scripts/vllm/run.sh",
