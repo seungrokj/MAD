@@ -1,2 +1,2 @@
 vllm_arg
---port 8080 --tensor-parallel-size 8 --gpu-memory-utilization 0.9 --trust-remote-code  --disable-log-requests  --max-model-len 32768 --no-enable-prefix-caching --max-num-batched-tokens 8192 --compilation-config 0 --enforce-eager
+--port 8080 --tensor-parallel-size 8 --gpu-memory-utilization 0.9 --trust-remote-code  --disable-log-requests  --max-model-len 32768 --no-enable-prefix-caching --max-num-batched-tokens 8192 
