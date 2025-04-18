@@ -70,6 +70,11 @@ else
     CONFIG="online_config_cuda.csv"
 fi
 
+if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx95"* ]] ; then 
+    # Need to find out the root caseu of this
+    export RCCL_MSCCL_ENABLE=0
+fi
+
 report_dir="reports_${datatype}_${tag}"
 report_summary_dir="${report_dir}/summary"
 mkdir -p $report_dir
