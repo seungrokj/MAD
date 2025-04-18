@@ -1,6 +1,5 @@
 # Quick Start
 
-F
 ## Performance
 ```
 export MODEL_DIR=~/Llama-4-Maverick-17B-128E-Instruct-FP8
