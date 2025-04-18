@@ -65,8 +65,7 @@ else
     CONFIG="online_config_cuda.csv"
 fi
 
-env 
-exit 1
+env
 
 if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx95"* ]] ; then 
     # Need to find out the root caseu of this
