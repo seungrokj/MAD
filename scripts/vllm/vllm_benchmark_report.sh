@@ -51,6 +51,8 @@ tag="vllm_ll4"
 CON="16 32 64 128"
 ISL_OSL=("2000:150" "1000:1000" "5000:1000" "10000:1000" "3200:800")
 
+AITER_HACK=""
+
 if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx94"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx95"* ]] ; then 
     if [[ "$aiter" == "on" ]] ; then 
 	export VLLM_ROCM_FP8_PADDING=0 
@@ -59,6 +61,7 @@ if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx94"* ]] || [[ "$MAD_SYSTEM_GPU_ARCH
 	export VLLM_ROCM_USE_AITER_FP8_CHANNEL_SCALED_MOE=0
 	export VLLM_ROCM_USE_AITER_RMSNORM=0 
 	export VLLM_ROCM_USE_AITER_LINEAR=0 
+	AITER_HACK=" --compilation-config 0 --enforce-eager"
     fi
     CONFIG="online_config_rocm.csv"
 else
@@ -122,12 +125,12 @@ if [ "$scenario" == "online_perf" ]; then
         echo $vllm_arg
         printf "%-15s" "model: " $MODEL_DIR     2>&1 | tee -a ${LOG_sum}.log
         printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
-        printf "%-15s" "option: " $vllm_arg     2>&1 | tee -a ${LOG_sum}.log
+        printf "%-15s" "option: " $vllm_arg $AITER_HACK    2>&1 | tee -a ${LOG_sum}.log
         printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
         printf "%-15s" "==========="  2>&1 | tee -a ${LOG_sum}.log
         printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
 
-        vllm serve $MODEL_DIR $vllm_arg &
+        vllm serve $MODEL_DIR $vllm_arg $AITER_HACK $DTYPE &
         wait_for_server 8080
 
         printf "%-15s" prompts                 2>&1 | tee -a ${LOG_sum}.log
@@ -224,12 +227,12 @@ elif [ "$scenario" == "online_accuracy" ]; then
         echo $vllm_arg
         printf "%-15s" "model: " $MODEL_DIR     2>&1 | tee -a ${LOG_sum}.log
         printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
-        printf "%-15s" "option: " $vllm_arg     2>&1 | tee -a ${LOG_sum}.log
+        printf "%-15s" "option: " $vllm_arg $AITER_HACK    2>&1 | tee -a ${LOG_sum}.log
         printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
         printf "%-15s" "==========="  2>&1 | tee -a ${LOG_sum}.log
         printf "\n"                   2>&1 | tee -a ${LOG_sum}.log
 
-        vllm serve $MODEL_DIR $vllm_arg $DTYPE &
+        vllm serve $MODEL_DIR $vllm_arg $AITER_HACK $DTYPE &
         wait_for_server 8080
 
         lm_eval --model local-completions --model_args model=$MODEL_DIR,base_url=http://0.0.0.0:8080/v1/completions,num_concurrent=10,max_retries=3 --tasks mmlu_pro --limit 100  2>&1 | tee -a ${LOG_sum}.log
