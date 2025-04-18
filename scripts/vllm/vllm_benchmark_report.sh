@@ -35,7 +35,7 @@ do
         m) model=${OPTARG};;
         g) numgpu=${OPTARG};;
         d) datatype=${OPTARG};;
-        d) vllmmode=${OPTARG};;
+        v) vllmmode=${OPTARG};;
         a) aiter=${OPTARG};;
     esac
 done
