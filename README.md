@@ -1,14 +1,25 @@
 # Quick Start
 
 ## Performance
-'''
+```
 MODEL_DIR=~/Llama-4-Maverick-17B-128E-Instruct-FP8 python3 tools/run_models.py --tags pyt_vllm_ll4_pf --keep-model-dir --live-output
+```
+## Performance + AITER
+```
+MODEL_DIR=~/Llama-4-Maverick-17B-128E-Instruct-FP8 python3 tools/run_models.py --tags pyt_vllm_ll4_pf_ait --keep-model-dir --live-output
+```
+
 ## Accuracy
+```
 MODEL_DIR=~//Llama-4-Maverick-17B-128E-Instruct-FP8 python3 tools/run_models.py --tags pyt_vllm_ll4_ac --keep-model-dir --live-output
-'''
+```
+## Accuracy + AITER
+```
+MODEL_DIR=~//Llama-4-Maverick-17B-128E-Instruct-FP8 python3 tools/run_models.py --tags pyt_vllm_ll4_ac_ait --keep-model-dir --live-output
+```
 
 
-
+# ===============================================
 # MAD, Model Automation and Dashboarding
 
 ## What is this repository for? 
