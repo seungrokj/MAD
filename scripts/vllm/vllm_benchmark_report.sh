@@ -58,7 +58,7 @@ tag="vllm_ll4"
 CON="16 32 64 128"
 ISL_OSL=("2000:150" "1000:1000" "5000:1000" "10000:1000" "3200:800")
 
-if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx94"* ]] ; then 
+if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx94"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx95"* ]] ; then 
     CONFIG="online_config_rocm.csv"
     #export VLLM_ROCM_FP8_PADDING=0 
     #export VLLM_ROCM_USE_AITER=1 

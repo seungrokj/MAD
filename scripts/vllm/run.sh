@@ -26,15 +26,14 @@
 #################################################################################
 set -ex
 
-if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx94"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"H200"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"H100"* ]] ; then 
+if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx95"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx94"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"H200"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"H100"* ]] ; then 
     echo "Suported GPU arch detected \n"
 else
-    echo "Unsuported GPU arch detected, please use supported MI300X, H200, H100 GPUs \n"
+    echo "Unsuported GPU arch detected, please use supported MI300X, MI350X, H200, H100 GPUs \n"
     exit 1
 fi
 
-if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" != *"gfx94"* ]] ; then 
-    echo "Suported GPU arch detected \n"
+if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"H200"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"H100"* ]] ; then 
     git clone https://github.com/vllm-project/vllm.git /app/vllm
 fi
 
