@@ -15,7 +15,25 @@
     ],
     "timeout": -1,
     "args":
-    "--model_repo dummy --test_option online_perf --vllm_mode v1 --datatype dummy"
+    "--model_repo dummy --test_option online_perf --vllm_mode v1 --datatype dummy --ait off"
+  },
+  {
+    "name": "pyt_vllm_ll4_pf_ait",
+    "url": "",
+    "dockerfile": "docker/pyt_vllm",
+    "scripts": "scripts/vllm/run.sh",
+    "data": "huggingface",
+    "n_gpus": "-1",
+    "owner": "mad.support@amd.com",
+    "training_precision": "",
+    "multiple_results": "perf_local_model.csv",
+    "tags": [
+      "pyt",
+      "vllm"
+    ],
+    "timeout": -1,
+    "args":
+    "--model_repo dummy --test_option online_perf --vllm_mode v1 --datatype dummy --ait on"
   },
   {
     "name": "pyt_vllm_ll4_ac",
@@ -33,6 +51,24 @@
     ],
     "timeout": -1,
     "args":
-    "--model_repo dummy --test_option online_accuracy --vllm_mode v1 --datatype dummy"
+    "--model_repo dummy --test_option online_accuracy --vllm_mode v1 --datatype dummy --ait off"
+  },
+  {
+    "name": "pyt_vllm_ll4_ac_ait",
+    "url": "",
+    "dockerfile": "docker/pyt_vllm",
+    "scripts": "scripts/vllm/run.sh",
+    "data": "huggingface",
+    "n_gpus": "-1",
+    "owner": "mad.support@amd.com",
+    "training_precision": "",
+    "multiple_results": "perf_local_model.csv",
+    "tags": [
+      "pyt",
+      "vllm"
+    ],
+    "timeout": -1,
+    "args":
+    "--model_repo dummy --test_option online_accuracy --vllm_mode v1 --datatype dummy --ait on"
   }
 ]

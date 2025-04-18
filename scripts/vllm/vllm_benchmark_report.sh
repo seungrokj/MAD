@@ -26,23 +26,16 @@
 #################################################################################
 
 ## Usage: 
-#./vllm_benchmark_report.sh -s $mode -m $hf_model -g $n_gpu -d $datatype -v $vllm_mode
-## example:
-## latency + throughput
-#./vllm_benchmark_report.sh -s all -m NousResearch/Meta-Llama-3-8B -g 1 -d float16 -v $vllm_mode
-## latency 
-#./vllm_benchmark_report.sh -s latency -m NousResearch/Meta-Llama-3-8B -g 1 -d float16 -v $vllm_mode
-## throughput
-#./vllm_benchmark_report.sh -s throughput -m NousResearch/Meta-Llama-3-8B -g 1 -d float16 -v $vllm_mode
+#./vllm_benchmark_report.sh -s $mode -m $hf_model -g $n_gpu -d $datatype -a $aiter
 
-while getopts s:m:g:d:v: flag
+while getopts s:m:g:d:a: flag
 do
     case "${flag}" in
         s) scenario=${OPTARG};;
         m) model=${OPTARG};;
         g) numgpu=${OPTARG};;
         d) datatype=${OPTARG};;
-        v) vllmmode=${OPTARG};;
+        a) aiter=${OPTARG};;
     esac
 done
 
@@ -59,16 +52,21 @@ CON="16 32 64 128"
 ISL_OSL=("2000:150" "1000:1000" "5000:1000" "10000:1000" "3200:800")
 
 if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx94"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx95"* ]] ; then 
+    if [[ "$aiter" == "on" ]] ; then 
+	export VLLM_ROCM_FP8_PADDING=0 
+	export VLLM_ROCM_USE_AITER=1 
+	export VLLM_ROCM_USE_AITER_MOE=1 
+	export VLLM_ROCM_USE_AITER_FP8_CHANNEL_SCALED_MOE=0
+	export VLLM_ROCM_USE_AITER_RMSNORM=0 
+	export VLLM_ROCM_USE_AITER_LINEAR=0 
+    fi
     CONFIG="online_config_rocm.csv"
-    #export VLLM_ROCM_FP8_PADDING=0 
-    #export VLLM_ROCM_USE_AITER=1 
-    #export VLLM_ROCM_USE_AITER_MOE=1 
-    #export VLLM_ROCM_USE_AITER_FP8_CHANNEL_SCALED_MOE=0
-    #export VLLM_ROCM_USE_AITER_RMSNORM=0 
-    #export VLLM_ROCM_USE_AITER_LINEAR=0 
 else
     CONFIG="online_config_cuda.csv"
 fi
+
+env 
+exit 1
 
 if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx95"* ]] ; then 
     # Need to find out the root caseu of this

@@ -61,6 +61,11 @@ while [[ "$#" -gt 0 ]]; do
         *) echo "Unknown parameter passed: $1"; usage ;;
     esac
     shift
+    case $1 in
+        --ait) AITER="$2"; shift ;;
+        *) echo "Unknown parameter passed: $1"; usage ;;
+    esac
+    shift
 done
 
 
@@ -94,6 +99,6 @@ echo "=hyper params end="
 
 for scenario in $TEST_OPTION_SP; do
     for dtype in $DTYPE_SP; do
-        ./vllm_benchmark_report.sh -s $scenario -m $MODEL_NAME -g $MAD_SYSTEM_NGPUS -d $dtype -v $VLLM_MODE_SP
+        ./vllm_benchmark_report.sh -s $scenario -m $MODEL_NAME -g $MAD_SYSTEM_NGPUS -d $dtype -a $AITER
     done
 done
