@@ -26,15 +26,16 @@
 #################################################################################
 
 ## Usage: 
-#./vllm_benchmark_report.sh -s $mode -m $hf_model -g $n_gpu -d $datatype -a $aiter
+#./vllm_benchmark_report.sh -s $mode -m $hf_model -g $n_gpu -d $datatype -v $vllmmode -a $aiter
 
-while getopts s:m:g:d:a: flag
+while getopts s:m:g:d:v:a: flag
 do
     case "${flag}" in
         s) scenario=${OPTARG};;
         m) model=${OPTARG};;
         g) numgpu=${OPTARG};;
         d) datatype=${OPTARG};;
+        d) vllmmode=${OPTARG};;
         a) aiter=${OPTARG};;
     esac
 done
