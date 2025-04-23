@@ -75,6 +75,8 @@ env
 if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx95"* ]] ; then 
     # Need to find out the root caseu of this
     export RCCL_MSCCL_ENABLE=0
+    export NCCL_MIN_NCHANNELS=112
+    export HSA_NO_SCRATCH_RECLAIM=1
 fi
 
 report_dir="reports_${datatype}_${tag}"
