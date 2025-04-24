@@ -51,6 +51,7 @@ tp=$numgpu
 tag="vllm_ll4"
 CON="16 32 64 128"
 ISL_OSL=("2000:150" "1000:1000" "5000:1000" "10000:1000" "3200:800")
+ISL_OSL=("2000:150")
 
 AITER_HACK=""
 
@@ -149,6 +150,8 @@ if [ "$scenario" == "online_perf" ]; then
         printf "%-15s" output_tps              2>&1 | tee -a ${LOG_sum}.log
         printf "%-15s" total_tps               2>&1 | tee -a ${LOG_sum}.log
         printf "\n"                            2>&1 | tee -a ${LOG_sum}.log
+
+	git clone https://github.com/vllm-project/vllm.git /app/vllm
 
         for in_out in ${ISL_OSL[@]}
         do

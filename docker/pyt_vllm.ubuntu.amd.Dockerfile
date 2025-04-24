@@ -24,7 +24,9 @@
 # SOFTWARE.
 #
 #################################################################################
-ARG BASE_DOCKER=rocm/pytorch-private:jpvillam_experiment_4_18_llama4
+#ARG BASE_DOCKER=rocm/pytorch-private:jpvillam_experiment_4_18_llama4
+#ARG BASE_DOCKER=rocm/aigmodels-private:jpvillam_experiment_4_23_aiter
+ARG BASE_DOCKER=rocm/pytorch-private:seungrok_vllm_gfx950_0424
 FROM $BASE_DOCKER
 
 USER root
