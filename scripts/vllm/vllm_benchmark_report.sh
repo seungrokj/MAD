@@ -57,8 +57,8 @@ AITER_HACK=""
 if [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx94"* ]] || [[ "$MAD_SYSTEM_GPU_ARCHITECTURE" == *"gfx95"* ]] ; then 
     if [[ "$aiter" == "on" ]] ; then 
 	export VLLM_ROCM_USE_AITER=1 
-	export VLLM_ROCM_USE_AITER_RMSNORM=0 
-	export VLLM_ROCM_USE_AITER_LINEAR=0 
+	#export VLLM_ROCM_USE_AITER_RMSNORM=0 
+	#export VLLM_ROCM_USE_AITER_LINEAR=0 
 	#export VLLM_USE_TRITON_FLASH_ATTN=1 
 	#export VLLM_ROCM_USE_AITER_MOE=1 
 	#export VLLM_ROCM_USE_AITER_FP8_TKW1_MOE=1 
