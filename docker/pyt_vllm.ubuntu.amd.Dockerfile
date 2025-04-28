@@ -24,7 +24,7 @@
 # SOFTWARE.
 #
 #################################################################################
-ARG BASE_DOCKER=rocm/pytorch-private:vllm-llama-20250418
+ARG BASE_DOCKER=rocm/pytorch-private:vllm-llama-20250425
 FROM $BASE_DOCKER
 
 USER root
